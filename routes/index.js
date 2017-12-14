@@ -61,32 +61,27 @@ router.get('/login', checkLogin,async (ctx, next) => {
           expiresIn:600
         });
         
-        await UserModel.findOne({
-          name:username
-        }).then(res=>{
-          if(!res){
-            return ctx.body={
-              status:1,
-              data:'用户名未注册'
-            }
-          }else{
-            if(res.password==md5(password)){
-              return UserModel.update({_id:res.id},{$set:{token:token}}).then(res=>{
-                if(res){
-                  res.password='';
-                  ctx.session.user=res;
-                  ctx.session.token=token;
-                  return ctx.body={
-                    status:2,
-                    data:'登陆成功'
-                  }
-                }else{
-                  return ctx.body={
-                    status:5,
-                    data:'登陆失败'
-                  }
+        var findRes=await UserModel.findOne({name:username});
+        console.log('findres: '+findRes)
+        try{
+          if(findRes){
+            // 判断密码
+            if(findRes.password==md5(password)){
+              var updateRes=await UserModel.update({_id:findRes.id},{$set:{token:token}});
+              if(updateRes){
+                findRes.password='';
+                ctx.session.user=findRes;
+                ctx.session.token=token;
+                return ctx.body={
+                  status:2,
+                  data:'登陆成功'
                 }
-              })
+              }
+              return ctx.body={
+                status:5,
+                data:'登陆失败'
+              }
+            
             }else{
               return ctx.body={
                 status:3,
@@ -94,16 +89,61 @@ router.get('/login', checkLogin,async (ctx, next) => {
               }
             }
           }
-        }).catch(()=>{
+          return ctx.body={
+            status:1,
+            data:'用户名未注册'
+          }
+          
+        }catch(e){
           return ctx.body={
             status:4,
             data:'登录失败'
           }
-        })
+        }
+
+        // await UserModel.findOne({
+        //   name:username
+        // }).then(res=>{
+        //   if(!res){
+        //     return ctx.body={
+        //       status:1,
+        //       data:'用户名未注册'
+        //     }
+        //   }else{
+        //     if(res.password==md5(password)){
+        //       return UserModel.update({_id:res.id},{$set:{token:token}}).then(res=>{
+        //         if(res){
+        //           res.password='';
+        //           ctx.session.user=res;
+        //           ctx.session.token=token;
+        //           return ctx.body={
+        //             status:2,
+        //             data:'登陆成功'
+        //           }
+        //         }else{
+        //           return ctx.body={
+        //             status:5,
+        //             data:'登陆失败'
+        //           }
+        //         }
+        //       })
+        //     }else{
+        //       return ctx.body={
+        //         status:3,
+        //         data:'用户名或密码不正确'
+        //       }
+        //     }
+        //   }
+        // }).catch(()=>{
+        //   return ctx.body={
+        //     status:4,
+        //     data:'登录失败'
+        //   }
+        // })
 
     });
 
-router.get('/sign',async (ctx, next) => {
+router.get('/sign',checkLogin,async (ctx, next) => {
       await ctx.render('sign', {
           title: 'koa 注册'
         });
@@ -137,34 +177,63 @@ router.get('/sign',async (ctx, next) => {
           token:''
         });
 
-        await UserModel.findOne({
-          name:username
-        }).then(res=>{
-          if(res){
+        var findRes=await UserModel.findOne({name:username});
+
+        try{
+          if(findRes){
             return ctx.body={
               status:1,
               data:'用户名已存在'
             }
           }
-          return UserForm.save().then(res=>{
-            console.log(res)
-            if(res){
-              return ctx.body={
-                status:2,
-                data:'注册成功'
-              }
+          var saveRes=await UserForm.save();
+          if(saveRes){
+            return ctx.body={
+              status:2,
+              data:'注册成功'
             }
+          }else{
             return ctx.body={
               status:3,
               data:'注册失败'
             }
-          })
-        }).catch(()=>{
+          }
+
+        }catch(e){
           return ctx.body={
             status:4,
             data:'注册失败'
           }
-        })
+        }
+
+        // await UserModel.findOne({
+        //   name:username
+        // }).then(res=>{
+        //   if(res){
+        //     return ctx.body={
+        //       status:1,
+        //       data:'用户名已存在'
+        //     }
+        //   }
+        //   return UserForm.save().then(res=>{
+        //     console.log(res)
+        //     if(res){
+        //       return ctx.body={
+        //         status:2,
+        //         data:'注册成功'
+        //       }
+        //     }
+        //     return ctx.body={
+        //       status:3,
+        //       data:'注册失败'
+        //     }
+        //   })
+        // }).catch(()=>{
+        //   return ctx.body={
+        //     status:4,
+        //     data:'注册失败'
+        //   }
+        // })
     })
 
 module.exports = router
