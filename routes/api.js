@@ -21,8 +21,16 @@ router.post('/sign',signRouters.postSign);
 //退出登录
 router.get('/signout',signRouters.signOut);
 //新建文章
-router.get('/post',checkLogin,postRouters.getPost);
-router.post('/post',postRouters.postPost);
+router.get('/create',checkLogin,postRouters.getCreate);
+router.post('/create',postRouters.postCreate);
+//查看文章
+router.get('/post/:postId',postRouters.getPost)
+//删除文章
+router.post('/post/delete',postRouters.delPost);
+//发表评论
+router.post('/post/:postId/comment',checkLogin,postRouters.newComment);
+//获取评论
+router.post('/post/:postId/comments',checkLogin,postRouters.getComment);
 
 
 

@@ -1,4 +1,54 @@
 <%- include('./commons/header.ejs') %>
     <%- include('./commons/section_header.ejs') %>
-</body>
-</html>
+    <div>
+        <!-- <%= postContent %> -->
+        <ul class="am-list">
+            <% postContent.forEach(function(post){ %>
+                <li class="am-g am-list-item-dated">
+                    <a href="post/<%= post._id %>" class="am-list-item-hd "><%= post.title %></a>
+                    <span class="am-list-date"> <%= post.create_time %></span>
+                </li>
+            <% }) %>
+        </ul>
+        <ul data-am-widget="pagination" class="am-pagination am-pagination-select">
+            <li class="am-pagination-prev">
+                <% if(minPage){ %>
+                    <a href="javascript:void(0);">上一页</a>
+                <% }else{ %>
+                    <a href="/?page=<%= page-1 %>" class="am-active">上一页</a>
+                <% } %>
+            </li>
+            <li class="am-pagination-select">
+                <select class="am_select">
+                    <% for(let i=1;i<=totalPages;i++){ %>
+                        <% if(i==page){ %>
+                            <option value="<%= i %>"selected>
+                                <%= i %> / <%= totalPages %>
+                            </option>
+                        <% }else{ %>
+                            <option value="<%= i %>">
+                                <%= i %> / <%= totalPages %>
+                            </option>
+                        <% } %>
+                    <% }%>
+                </select>
+            </li>
+    
+            <li class="am-pagination-next ">
+                <% if(maxPage){ %>
+                    <a href="javascript:void(0);">下一页</a>
+                <% }else{ %>
+                    <a href="/?page=<%= page+1 %>" class="am-active">下一页</a>
+                <% } %>
+                
+            </li>
+        </ul>
+        
+    </div>
+<script>
+    $('select.am_select').change(function(){
+        var page=$(this).val();
+        window.location.href="/?page="+page;
+    })
+</script>
+<%- include('./commons/section_footer.ejs') %>

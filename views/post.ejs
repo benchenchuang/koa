@@ -1,38 +1,107 @@
 <%- include('./commons/header.ejs') %>
     <%- include('./commons/section_header.ejs') %>
 
+    <div>
+        <h2><%= content.title %></h2>
+        <p><%= content.content %></p>
+        <p>作者 <%= content.author %></p>
+        <p>点击量 <%= content.pv %></p>
+        <p><%= content.create_time %></p>
+
+        <% if(name){ %>
+            <% if(content.author==name.name){ %>
+                <a class="del_btn" href="javascript:void(0);" data-id="<%= content._id %>">删除</a>
+            <% } %>
+        <% } %>
+    </div>
+
     <form class="am-form">
             <fieldset>
-              <legend><%= title %></legend>
               <div class="am-form-group">
-                <label for="doc-ipt-email-1">标题</label>
-                <input type="text" class="" name="title" placeholder="输入标题">
+                <label for="doc-ta-1">评论区</label>
+                <textarea data-id="<%= content._id %>" class="am_content" rows="5" name="content" placeholder="输入评论内容"></textarea>
               </div>
-          
-              <div class="am-form-group">
-                <label for="doc-ta-1">文本域</label>
-                <textarea class="" rows="5" name="content" placeholder="输入文本内容"></textarea>
-              </div>
-          
               <p><button type="button" class="am-btn am-btn-default">提交</button></p>
             </fieldset>
     </form>
 
+    <div class="praise">
+
+    </div>
+
     <script>
-        $('button.am-btn').click(function(){
-            var formData=$('form.am-form').serialize();
+        //删除文章
+        $('.del_btn').click(function(){
+            var id=$(this).attr('data-id');
             $.ajax({
-                url:'/post',
+                url:'/post/delete',
                 type:'post',
-                data:formData,
+                data:{
+                    id:id
+                },
                 success:function(res){
-                    console.log(res)
+                    if(res.status==1){
+                        alertModel(res.data);
+                        setTimeout(()=>{
+                            window.location.href='/'
+                        },1500)
+                    }else{
+                        alertModel(res.data);
+                    }
                 },
                 error:function(err){
                     alertModel(err.statusText)
                 }
             })
+        });
+        //发表评论
+        $('.am-btn').click(function(){
+            var content=$('textarea.am_content').val();
+            var id=$('textarea.am_content').attr('data-id');
+            $.ajax({
+                url:'/post/'+id+'/comment',
+                type:'post',
+                data:{
+                    content:content
+                },
+                success:function(res){
+                    if(res.status==1){
+                        alertModel(res.data);
+                        setTimeout(()=>{
+                            window.location.href='/post/'+id
+                        },1500)
+                    }else{
+                        alertModel(res.data)
+                    }
+                }
+            })
+        });
+
+        var id=$('textarea.am_content').attr('data-id');
+        $.ajax({
+            url:'/post/'+id+'/comments',
+            type:'post',
+            data:{
+                postId:id
+            },
+            success:function(res){
+                if(res.status==1){
+                    var data=res.data;
+                    var praiseHtml='';
+                    data.forEach((item,index)=>{
+                        praiseHtml+=`<li>
+                            <p>${item.content}</p>
+                            <span>${item.author}</span>
+                            <p>${item.create_time}</p>
+                            <hr/>
+                        </li>`
+                    })
+
+                    $('.praise').append(praiseHtml)
+                }
+            }
         })
+
     </script>
 
- <%- include('./commons/section_footer.ejs') %>
+<%- include('./commons/section_footer.ejs') %>
