@@ -11,4 +11,4 @@ exports.Comment=new mongoose.Schema({
         type:String,
         default:(new Date()).toLocaleDateString()+'  '+(new Date()).toLocaleTimeString()
     }
-})
+});

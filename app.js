@@ -41,7 +41,8 @@ const setConfig={
 app.use(session(setConfig,app));
 // logger
 app.use(async (ctx, next) => {
-  const start = new Date()
+  const start = new Date();
+  ctx.user = ctx.session.user
   await next()
   const ms = new Date() - start
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)

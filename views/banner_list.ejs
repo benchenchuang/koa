@@ -1,0 +1,60 @@
+<%- include('./commons/header.ejs') %>
+    <%- include('./commons/section_header.ejs') %>
+    <div data-am-widget="list_news" class="am-list-news am-list-news-default" >
+            <a href="/banner">新建banner</a>
+            <ul class="am-list">
+                
+                
+            </ul>
+    </div>
+    <script>
+        $.ajax({
+            url:'/banner/get_list',
+            type:'get',
+            success:function(res){
+                if(res.status==1){
+                    var listHtml='';
+                    res.data.forEach(item=>{
+                        listHtml+=`<li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left">
+                    <div class="am-u-sm-4 am-list-thumb">
+                    <a href="${item.url}" class="">
+                        <img src="/uploads/${item.file}" alt="我很囧，你保重....晒晒旅行中的那些囧！"/>
+                    </a>
+                    </div>
+                    <div class=" am-u-sm-8 am-list-main">${item.url}</div>
+                    <div class=" am-u-sm-8 am-list-main">${item.title}</div>
+                    <a class="del_btn am-u-sm-8 am-list-main" href="javascript:void(0);" data-id="${item._id}">删除</a>
+                </li>`
+                    })
+                    $('.am-list').append(listHtml)
+                }else{
+                    alertModel(res.data)
+                }
+            }
+        });
+
+        $(document).on('click','.del_btn',function(){
+            var id=$(this).attr('data-id');
+            $.ajax({
+                url:"/banner/del",
+                type:'post',
+                data:{
+                    id:id
+                },
+                success:function(res){
+                    if(res.status==1){
+                        alertModel('删除成功');
+                        setTimeout(function(){
+                            window.location.reload()
+                        },1500)
+                    }else{
+                        alertModel(res.data);
+                    }
+                }
+
+            })
+        })
+
+    </script>
+
+<%- include('./commons/section_footer.ejs') %>

@@ -1,6 +1,14 @@
 <%- include('./commons/header.ejs') %>
     <%- include('./commons/section_header.ejs') %>
     <div>
+        <style>
+            .am-slider .am-slides>li{
+                display: block;
+            }
+        </style>
+        <div class="banner_box">
+
+        </div>
         <!-- <%= postContent %> -->
         <ul class="am-list">
             <% postContent.forEach(function(post){ %>
@@ -49,6 +57,27 @@
     $('select.am_select').change(function(){
         var page=$(this).val();
         window.location.href="/?page="+page;
+    });
+
+    $.ajax({
+        url:'/banner/get_list',
+        type:'get',
+        success:function(res){
+            if(res.status==1){
+                var listHtml='';
+                
+                res.data.forEach(item=>{
+                    listHtml+=`<li>
+                            <img src="/uploads/${item.file}">
+                            <div class="am-slider-desc">${item.title}</div>
+                        </li>`
+                });
+                var ulHtml='<div data-am-widget="slider" class="am-slider am-slider-default" data-am-slider="{&quot;animation&quot;:&quot;slide&quot;,&quot;slideshow&quot;:false}" ><ul class="am-slides">'+listHtml+'</ul></div>';
+                $('.banner_box').append(ulHtml)
+            }else{
+                alertModel(res.data)
+            }
+        }
     })
 </script>
 <%- include('./commons/section_footer.ejs') %>

@@ -7,9 +7,35 @@ const signRouters=require('./sign');
 const homeRouters=require('./index');
 //文章模块
 const postRouters=require('./post');
+// 上传图片的中间件
+const multer=require('koa-multer');
+//配置  
+var storage = multer.diskStorage({  
+  //文件保存路径  
+  destination: function (req, file, cb) {  
+    cb(null, 'public/uploads/')  
+  },  
+  //修改文件名称  
+  filename: function (req, file, cb) {  
+    var fileFormat = (file.originalname).split(".");  
+    cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);  
+  }  
+}) 
+//加载配置  
+var upload = multer({ storage: storage }); 
+
+
 
 // 首頁
 router.get('/',homeRouters.home);
+router.get('/banner',homeRouters.adminBanner);
+router.post('/banner',homeRouters.postBanner);
+router.get('/banner/list',homeRouters.getBanner);
+router.get('/banner/get_list',homeRouters.get_banner_list);
+router.post('/banner/del',homeRouters.del_banner);
+
+//上传banner图片
+router.post('/post/banner',upload.single('banner'),homeRouters.fileBanner);
 // 登錄验证码
 router.get('/code',signRouters.code);
 //登录
